@@ -57,6 +57,12 @@ impl Lexer {
         &self.input[st..self.position]
     }
 
+    fn skip_whitespace(&mut self) {
+        while self.ch.is_ascii_whitespace(){
+            self.read_char();
+        }
+    }
+
     fn read_char(&mut self) {
         self.ch = if self.readPosition >= self.input.len() {
             '\0'
@@ -67,27 +73,41 @@ impl Lexer {
         self.position = self.readPosition;
         self.readPosition += 1;
     }
+    
+    fn read_num(&mut self) -> &str{
+        let st = self.position;
+        while self.ch.is_numeric() {
+            self.read_char();
+        }
+        &self.input[st..self.position]
+    }
 
     fn next_token(&mut self) -> Token {
-        let tok = match self.ch {
-            '=' => cons_token(TokenType::ASSIGN, self.ch.to_string()),
-            ';' => cons_token(TokenType::SEMICOLON, self.ch.to_string()),
-            '(' => cons_token(TokenType::LPAREN, self.ch.to_string()),
-            ')' => cons_token(TokenType::RPAREN, self.ch.to_string()),
-            ',' => cons_token(TokenType::COMMA, self.ch.to_string()),
-            '+' => cons_token(TokenType::PLUS, self.ch.to_string()),
-            '{' => cons_token(TokenType::LBRACE, self.ch.to_string()),
-            '}' => cons_token(TokenType::RBRACE, self.ch.to_string()),
-            '\0' => cons_token(TokenType::EOF, '\0'.to_string()),
+        self.skip_whitespace();
+            let mut tok;
+            match self.ch {
+            '=' => tok = cons_token(TokenType::ASSIGN, self.ch.to_string()),
+            '\u{003b}' => tok = cons_token(TokenType::SEMICOLON, self.ch.to_string()),
+            '(' => tok = cons_token(TokenType::LPAREN, self.ch.to_string()),
+            ')' => tok = cons_token(TokenType::RPAREN, self.ch.to_string()),
+            ',' => tok = cons_token(TokenType::COMMA, self.ch.to_string()),
+            '+' => tok = cons_token(TokenType::PLUS, self.ch.to_string()),
+            '{' => tok = cons_token(TokenType::LBRACE, self.ch.to_string()),
+            '}' => tok = cons_token(TokenType::RBRACE, self.ch.to_string()),
+            '\0' => tok = cons_token(TokenType::EOF, '\0'.to_string()),
             chr => 
                 if chr.is_alphabetic() || chr == '_' {
-                    cons_token(keywords().get(&chr.to_string()).unwrap().clone(), String::from(self.read_identifier()))
+                    let iden = self.read_identifier();
+                    let kind = keywords().get(&iden.to_string()).unwrap_or(&TokenType::IDENT).clone();
+                    return cons_token(kind, iden.to_string())
+                } else if chr.is_numeric(){
+                    return cons_token(TokenType::INT,self.read_num().to_string())
                 } else {
-                    cons_token(TokenType::ILLEGAL,chr.to_string())
+                    tok = cons_token(TokenType::ILLEGAL,chr.to_string())
                 }
         };
         self.read_char();
-        return tok;
+        tok
     }
 }
 
@@ -105,10 +125,10 @@ fn lexer_of_str(string: &str) -> Lexer {
 fn lex(sample_input: &str) -> std::vec::Vec<Token> {
     let mut lexer = lexer_of_str(sample_input);
     let mut tokens = Vec::new();
-    for _ in 0..String::len(&lexer.input) {
+    loop {
         tokens.push(lexer.next_token());
+        if(tokens.last().unwrap().kind == TokenType::EOF) {break;}
     }
-    tokens.push(lexer.next_token());
     tokens
 }
 
@@ -227,9 +247,9 @@ fn test_case_two_vec() -> std::vec::Vec<Token> {
             kind: TokenType::IDENT,
             literal: String::from("y"),
         },
-        Token {
+        Token{
             kind: TokenType::RPAREN,
-            literal: String::from("x"),
+            literal: String::from(")")
         },
         Token {
             kind: TokenType::LBRACE,
@@ -250,6 +270,14 @@ fn test_case_two_vec() -> std::vec::Vec<Token> {
         Token {
             kind: TokenType::SEMICOLON,
             literal: String::from(";"),
+        },
+        Token{
+            kind:TokenType::RBRACE,
+            literal: String::from("}")
+        },
+        Token{
+            kind: TokenType::SEMICOLON,
+            literal:  String::from(";")
         },
         Token {
             kind: TokenType::LET,
