@@ -15,6 +15,19 @@ enum TokenType {
     RBRACE,
     FUNCTION,
     LET,
+    MINUS,
+    BANG,
+    ASTERISK,
+    SLASH,
+    LT,
+    GT,
+    TRUE,
+    FALSE,
+    IF,
+    ELSE,
+    RETURN,
+    EQ,
+    NOTEQ
 }
 
 #[derive(Debug, PartialEq)]
@@ -42,6 +55,11 @@ fn keywords() -> HashMap<String,TokenType>  {
     [
         (String::from("fn"), TokenType::FUNCTION),
         (String::from("let"), TokenType::LET),
+        (String::from("true"),TokenType::TRUE),
+        (String::from("false"),TokenType::FALSE),
+        (String::from("if"),TokenType::IF),
+        (String::from("else"),TokenType::ELSE),
+        (String::from("return"),TokenType::RETURN),
     ]
     .iter()
     .cloned()
@@ -82,11 +100,26 @@ impl Lexer {
         &self.input[st..self.position]
     }
 
+    fn peek_char(&mut self) -> char{
+        if self.readPosition >= String::len(&self.input){
+            '\0'
+        } else {
+            self.input.to_string().as_bytes()[self.readPosition] as char
+        }
+    }
+
     fn next_token(&mut self) -> Token {
         self.skip_whitespace();
             let mut tok;
             match self.ch {
-            '=' => tok = cons_token(TokenType::ASSIGN, self.ch.to_string()),
+            '=' => {if self.peek_char() == '=' 
+            {
+                self.read_char();
+                tok = cons_token(TokenType::EQ, "==".to_string())
+            } else{
+                tok = cons_token(TokenType::ASSIGN, self.ch.to_string())
+                };
+            },
             '\u{003b}' => tok = cons_token(TokenType::SEMICOLON, self.ch.to_string()),
             '(' => tok = cons_token(TokenType::LPAREN, self.ch.to_string()),
             ')' => tok = cons_token(TokenType::RPAREN, self.ch.to_string()),
@@ -94,6 +127,12 @@ impl Lexer {
             '+' => tok = cons_token(TokenType::PLUS, self.ch.to_string()),
             '{' => tok = cons_token(TokenType::LBRACE, self.ch.to_string()),
             '}' => tok = cons_token(TokenType::RBRACE, self.ch.to_string()),
+            '-' => tok = cons_token(TokenType::MINUS,  self.ch.to_string()),
+            '!' => tok = cons_token(TokenType::BANG,  self.ch.to_string()),
+            '*' => tok = cons_token(TokenType::ASTERISK,  self.ch.to_string()),
+            '/' => tok = cons_token(TokenType::SLASH, self.ch.to_string()),
+            '<' => tok = cons_token(TokenType::LT, self.ch.to_string()),
+            '>' => tok = cons_token(TokenType::GT, self.ch.to_string()),
             '\0' => tok = cons_token(TokenType::EOF, '\0'.to_string()),
             chr => 
                 if chr.is_alphabetic() || chr == '_' {
@@ -127,7 +166,7 @@ fn lex(sample_input: &str) -> std::vec::Vec<Token> {
     let mut tokens = Vec::new();
     loop {
         tokens.push(lexer.next_token());
-        if(tokens.last().unwrap().kind == TokenType::EOF) {break;}
+        if tokens.last().unwrap().kind == TokenType::EOF {break;}
     }
     tokens
 }
@@ -348,5 +387,26 @@ mod tests {
     let result = add(five,ten); ";
 
     assert_eq!(super::test_case_two_vec(),super::lex(input));
+   
     }
+    
+    #[test]
+    fn test_2(){
+     let input = "let five = 5;
+     let ten = 10;
+
+     let add = fn(x, y) {
+         x + y;
+     };
+     let result = add(five, ten);
+     ~-/*5;
+
+     5 < 10 > 5;
+     ";
+
+    //assert_eq!(super::test_case_three_vec(),super::lex(input));
+   
+
+    }
+
 }
