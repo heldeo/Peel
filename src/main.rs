@@ -128,7 +128,15 @@ impl Lexer {
             '{' => tok = cons_token(TokenType::LBRACE, self.ch.to_string()),
             '}' => tok = cons_token(TokenType::RBRACE, self.ch.to_string()),
             '-' => tok = cons_token(TokenType::MINUS,  self.ch.to_string()),
-            '!' => tok = cons_token(TokenType::BANG,  self.ch.to_string()),
+            '!' =>  { 
+                if self.peek_char() == '=' {
+                    self.read_char();
+                    tok = cons_token(TokenType::NOTEQ, "!=".to_string())
+                }
+                else{
+                tok = cons_token(TokenType::BANG,  self.ch.to_string())
+                };
+            },
             '*' => tok = cons_token(TokenType::ASTERISK,  self.ch.to_string()),
             '/' => tok = cons_token(TokenType::SLASH, self.ch.to_string()),
             '<' => tok = cons_token(TokenType::LT, self.ch.to_string()),
