@@ -38,7 +38,7 @@ pub struct Token {
 }
 
 #[derive(Debug, PartialEq)]
-struct Lexer {
+pub struct Lexer {
     input: String,
     position: usize,
     readPosition: usize,
