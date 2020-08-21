@@ -374,7 +374,15 @@ fn test_case_two_vec() -> std::vec::Vec<Token> {
 }
 
 fn main() {
-    println!("Hello, world!");
+    println!("REPL for the Monkey Language! ");
+    loop {
+    let in_line = dialoguer::Input::<String>::new().with_prompt(">> ").interact().unwrap();
+
+    let toks = lex(&in_line);
+    println!("Given line, loop new iter: {}", in_line);
+    println!("Tokenization : {:#?}" , toks);
+    }
+
 }
 
 #[cfg(test)]
