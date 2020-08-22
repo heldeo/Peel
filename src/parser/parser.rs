@@ -23,10 +23,13 @@ impl parser{
        self.peek_token = Some( self.l.next_token()); 
     }
 
-    pub fn parse_program(&mut self) -> super::ast::Program{
-        super::ast::Program{
-            statements: vec![ super::ast::stm::Node("Something".to_string())]
-        }
+    pub fn parse_program(&mut self) -> Option<super::ast::Program>{
+        
+       None 
+        //super::ast::Program{
+         //   statements: vec![ super::ast::stm::Stm_Node()]
+        //}
+        //
     }
 }
 

@@ -1,8 +1,9 @@
 #[path = "../lexer/lex.rs"] mod lex;
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum stm {
-    Node(String)
+pub enum stm<'a>{
+     Let_Node(node<'a>),
+     Stm_Node(node<'a>)
 }
 
 #[derive(Debug,PartialEq,Clone)]
@@ -10,49 +11,48 @@ pub enum exp{
      Node(String)
 }
 
-struct let_stm<'a>{
+#[derive(Debug, PartialEq, Clone)]
+pub struct node<'a>{
         token: &'a lex::Token,
-        name: &'a iden<'a>,
-        value: &'a exp
+        pub name: &'a iden<'a>,
+        pub value: &'a exp
 }
-impl<'a> let_stm<'a>{
+
+impl<'a> node<'a>{
     fn statment_node(&mut self){
         ()
     }
-    fn token_literal(&'a self) -> String{
+    pub fn token_literal(&'a self) -> String{
         String::from(&self.token.literal)
     }
 }
 
-struct iden<'a>{
-    token: &'a lex::Token,
-    value: &'a String
+#[derive(Debug, PartialEq, Clone)]
+pub struct iden<'a>{
+    pub token: &'a lex::Token,
+    pub value: &'a String
 }
 impl<'a> iden<'a>{
     fn expression_node(&mut self){
         ()
     }
-    fn token_literal(&'a self) -> String{
+    pub fn token_literal(&'a self) -> String{
         String::from(&self.token.literal)
     }
 }
 
-/*
-enum Nodes  {
-    Statement(String),
-    Expression(String)
-}
-*/
-
-pub struct Program {
-    pub statements: Vec<stm>
+pub struct Program<'a> {
+    pub statements: Vec<stm<'a>>
 }
 
-impl Program{
-fn token_literal(&mut self) -> String{
+impl<'a> Program<'a>{
+pub fn token_literal(&mut self) -> String{
         if std::vec::Vec::len(&self.statements) > 0 {
-            let stm::Node(literal) = self.statements[0].clone();
-            literal
+            let stm = match self.statements[0].clone() {
+              stm::Let_Node(s) => s, 
+              stm::Stm_Node(s) => s
+            };
+            stm.token_literal()
        }else{
             "".to_string()
         }

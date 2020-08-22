@@ -6,7 +6,7 @@ mod parser;
 mod tests {
     
     #[test]
-    fn simple_test() {
+    fn three_assignments() {
         let input = "
         let x = 5;
         let y = 10;
@@ -28,10 +28,29 @@ mod tests {
         ];
         let l: super::lex::Lexer= super::lex::lexer_of_str(input);
         let mut p = super::parser::cons_parser(l );
-        let program_stms = p.parse_program(); 
-        for i in 0..std::vec::Vec::len(&program_stms.unwrap()){
-
+        let program_stms = p.parse_program().unwrap().statements; 
+        for i in 0..std::vec::Vec::len(&program_stms){
+            let stm = program_stms[i].clone();
+            if !test_let_stm(stm,expected_idens[i].expected_identifier.clone()){
+                panic!("called to test_let_stm returned false");
+            }
         }
     }
-   
+
+    fn test_let_stm(stm:super::ast::stm,name: String) -> bool{
+        let let_stm = match stm {
+            super::ast::stm::Let_Node(s) => s,
+            super::ast::stm::Stm_Node(s) => s
+        };
+        if let_stm.token_literal() != "let"{
+            panic!("stmn.token_literal()) not 'let'. ");
+        }
+        if *let_stm.name.value != name {
+            panic!("let_stm.name.value is not equal to name");
+        }
+        if let_stm.name.token_literal() != name{
+            panic!("let_stm.name.literal (actual token field) is not equal to name");
+        }
+        return true;
+    }
 }
