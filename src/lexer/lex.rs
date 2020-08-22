@@ -31,7 +31,7 @@ pub enum TokenType {
     NOTEQ
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq,Clone)]
 pub struct Token {
     pub kind: TokenType,
     pub literal: String,
@@ -109,7 +109,7 @@ impl Lexer {
         }
     }
 
-    fn next_token(&mut self) -> Token {
+    pub fn next_token(&mut self) -> Token {
         self.skip_whitespace();
             let mut tok;
             match self.ch {
@@ -159,7 +159,7 @@ impl Lexer {
     }
 }
 
-fn lexer_of_str(string: &str) -> Lexer {
+pub fn lexer_of_str(string: &str) -> Lexer {
     let mut ret_lex: Lexer = Lexer {
         input: String::from(string),
         position: 0,

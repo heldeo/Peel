@@ -1,13 +1,13 @@
 #[path = "../lexer/lex.rs"] mod lex;
 
 #[derive(Debug, PartialEq, Clone)]
-enum stm {
+pub enum stm {
     Node(String)
 }
 
 #[derive(Debug,PartialEq,Clone)]
-enum exp{
-    Node(String)
+pub enum exp{
+     Node(String)
 }
 
 struct let_stm<'a>{
@@ -44,8 +44,8 @@ enum Nodes  {
 }
 */
 
-struct Program {
-    statements: Vec<stm>
+pub struct Program {
+    pub statements: Vec<stm>
 }
 
 impl Program{

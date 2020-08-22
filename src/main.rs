@@ -2,6 +2,7 @@
 #[path= "lexer/lex_test.rs"] mod lex_test;
 #[path = "ast/ast.rs"] mod ast;
 #[path="parser/parser.rs"] mod parser;
+#[path="parser/parser_test.rs"] mod parser_test;
 fn main() {
     println!("REPL for the Monkey Language! ");
     loop {
