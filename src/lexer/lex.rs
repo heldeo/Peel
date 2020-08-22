@@ -52,6 +52,13 @@ fn cons_token(token_kind: TokenType, lit: String) -> Token {
     }
 }
 
+pub fn cons_eof_tok() -> Token{
+        Token{
+            literal: "".to_string(),
+            kind: TokenType::EOF
+        }
+    }
+
 fn keywords() -> HashMap<String,TokenType>  {
     [
         (String::from("fn"), TokenType::FUNCTION),
