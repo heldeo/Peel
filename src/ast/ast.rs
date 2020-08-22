@@ -37,12 +37,12 @@ impl iden{
         ()
     }
     pub fn token_literal(&mut self) -> String{
-        String::from(self.token.literal)
+        String::from(self.token.literal.clone())
     }
 }
 
 pub struct Program {
-    pub statements: Vec<stm>
+    pub statements: Vec<super::ast::stm>
 }
 
 impl Program{

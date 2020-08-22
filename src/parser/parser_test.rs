@@ -39,8 +39,8 @@ mod tests {
 
     fn test_let_stm(stm:super::ast::stm,name: String) -> bool{
         let let_stm = match stm {
-            super::ast::stm::Let_Node(s) => s,
-            super::ast::stm::Stm_Node(s) => s
+            super::ast::stm::Let_Stm(s) => s,
+            super::ast::stm::Stm(s) => s
         };
         if let_stm.token_literal() != "let"{
             panic!("stmn.token_literal()) not 'let'. ");
@@ -48,7 +48,7 @@ mod tests {
         if *let_stm.name.value != name {
             panic!("let_stm.name.value is not equal to name");
         }
-        if let_stm.name.token_literal() != name{
+        if let_stm.name.clone().token_literal() != name{
             panic!("let_stm.name.literal (actual token field) is not equal to name");
         }
         return true;

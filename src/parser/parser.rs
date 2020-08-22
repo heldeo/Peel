@@ -48,7 +48,10 @@ impl parser{
             },
             value: super::ast::exp::Node("".to_string())
         };
-        
+       
+        if !self.expect_peek(super::lex::TokenType::ASSIGN){
+            return None
+        }
         while !self.cur_token_is(super::lex::TokenType::SEMICOLON){
             self.next_token();
         };
@@ -61,13 +64,14 @@ impl parser{
        } 
     }
     pub fn parse_program(&mut self) -> Option<super::ast::Program>{
-        let program = ast::Program  {
+        let mut program = super::ast::Program  {
             statements: vec![]
         };
         while self.cur_token.clone().unwrap_or(super::lex::cons_eof_tok()).kind != super::lex::TokenType::EOF{
                 let stm = self.parse_stm();
+                program.statements.push(stm.clone()); 
         }
-        None 
+        Some(program)
     }
 }
 
