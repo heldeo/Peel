@@ -27,10 +27,11 @@ impl parser{
         t == self.peek_token.clone().unwrap_or(super::lex::cons_eof_tok()).kind
     }
     fn expect_peek(&mut self, t: super::lex::TokenType)-> bool{
-        if self.peek_token_is(t){
+        if self.peek_token_is(t.to_owned()){
             self.next_token();
             true
         }else{
+            self.peek_error(t);
             false
         }
     }
@@ -71,9 +72,10 @@ impl parser{
     }
     pub fn parse_program(&mut self) -> Option<super::ast::Program>{
         let mut program = super::ast::Program  {
-            statements: vec![]
+            statements: vec![],
+            errors: vec![]
         };
-        while  self.cur_token_is(super::lex::TokenType::EOF){
+        while  !self.cur_token_is(super::lex::TokenType::EOF){
                 let stm = self.parse_stm();
                 program.statements.push(stm.clone()); 
         }

@@ -29,8 +29,8 @@ mod tests {
         let l: super::lex::Lexer= super::lex::lexer_of_str(input);
         let mut p = super::parser::cons_parser(l );
         let program = p.parse_program().unwrap();
-        check_parser_errors(program);
-        let program_stms = program.statements;
+        check_parser_errors(&program);
+        let program_stms = program.statements.clone();
         for i in 0..std::vec::Vec::len(&program_stms){
             let stm = program_stms[i].clone();
             if !test_let_stm(stm,expected_idens[i].expected_identifier.clone()){
@@ -39,9 +39,9 @@ mod tests {
         }
     }
 
-    fn check_parser_errors(program: super::ast::Program){
-        let errs = program.errors; 
-        if std::vec::Vec::len(&errs) > 0 {
+    fn check_parser_errors(program: &super::ast::Program){
+        let errs = &program.errors; 
+        if std::vec::Vec::len(&errs) == 0 {
             return;
         }
         println!("Parser errors: {:#?}", std::vec::Vec::len(&errs));
