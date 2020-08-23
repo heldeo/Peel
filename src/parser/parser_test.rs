@@ -28,13 +28,27 @@ mod tests {
         ];
         let l: super::lex::Lexer= super::lex::lexer_of_str(input);
         let mut p = super::parser::cons_parser(l );
-        let program_stms = p.parse_program().unwrap().statements; 
+        let program = p.parse_program().unwrap();
+        check_parser_errors(program);
+        let program_stms = program.statements;
         for i in 0..std::vec::Vec::len(&program_stms){
             let stm = program_stms[i].clone();
             if !test_let_stm(stm,expected_idens[i].expected_identifier.clone()){
                 panic!("called to test_let_stm returned false");
             }
         }
+    }
+
+    fn check_parser_errors(program: super::ast::Program){
+        let errs = program.errors; 
+        if std::vec::Vec::len(&errs) > 0 {
+            return;
+        }
+        println!("Parser errors: {:#?}", std::vec::Vec::len(&errs));
+        for i in 0..std::vec::Vec::len(&errs){
+            println!("Parser Error: {} ",errs[i]);
+        }
+        panic!()
     }
 
     fn test_let_stm(stm:super::ast::stm,name: String) -> bool{

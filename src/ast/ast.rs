@@ -42,7 +42,8 @@ impl iden{
 }
 
 pub struct Program {
-    pub statements: Vec<super::ast::stm>
+    pub statements: Vec<super::ast::stm>,
+    pub errors: Vec<String>
 }
 
 impl Program{

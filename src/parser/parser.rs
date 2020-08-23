@@ -4,14 +4,16 @@
 pub struct parser{
     l:  super::lex::Lexer,
     cur_token:  Option<super::lex::Token>,
-    peek_token:   Option<super::lex::Token>
+    peek_token:   Option<super::lex::Token>,
+    errors: Vec<String>
 }
 
 pub fn cons_parser(lexer: super::lex::Lexer) ->  parser{
     let mut parser = parser {
             l: lexer,
             cur_token:  None,
-            peek_token:  None 
+            peek_token:  None, 
+            errors: vec![]
         };
         parser.next_token();
         parser
@@ -63,11 +65,15 @@ impl parser{
            _ => self.parse_let_stm().unwrap()
        } 
     }
+    fn peek_error(&mut self, t: super::lex::TokenType)  {
+       let  msg = format!("Expected next token to be {:#?}, got {:#?} instead",t, self.peek_token.to_owned().unwrap().kind); 
+       self.errors.push(msg.to_owned());
+    }
     pub fn parse_program(&mut self) -> Option<super::ast::Program>{
         let mut program = super::ast::Program  {
             statements: vec![]
         };
-        while self.cur_token.clone().unwrap_or(super::lex::cons_eof_tok()).kind != super::lex::TokenType::EOF{
+        while  self.cur_token_is(super::lex::TokenType::EOF){
                 let stm = self.parse_stm();
                 program.statements.push(stm.clone()); 
         }
