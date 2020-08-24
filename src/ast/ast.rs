@@ -2,29 +2,63 @@
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum stm{
-     Let_Stm(node),
-     Stm(node)
+     Let_Stm(let_stm_node),
+     Ret_Stm(ret_stm_node),
+     Stm(let_stm_node)
 }
 
+impl  stm{
+   fn token_literal(&mut self) -> String{
+       match self {
+           stm::Let_Stm(s) => s.token_literal(),
+           stm::Ret_Stm(s) => s.token_literal(),
+           stm::Stm(s) => s.token_literal()
+       }
+    }
+
+}
 #[derive(Debug,PartialEq,Clone)]
 pub enum exp{
      Node(String)
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct node{
+pub struct let_stm_node{
         pub token:  super::lex::Token,
         pub name:  iden,
         pub value:  exp
 }
-
-impl node{
-    fn statment_node(&mut self){
-        ()
+#[derive(Debug,PartialEq,Clone)]
+pub struct ret_stm_node{
+    pub token: super::lex::Token,
+    pub ret_value: exp 
+}
+trait Stm {
+    fn token(&mut self) -> super::lex::Token;
+    fn token_literal(&mut self) -> String{
+        String::from(&self.token().literal)
     }
-    pub fn token_literal(& self) -> String{
+}
+
+impl Stm for let_stm_node{
+   fn token(&mut self) -> super::lex::Token{
+        return self.token.clone()
+    }
+   fn token_literal(&mut self) -> String{
         String::from(&self.token.literal)
     }
+}
+impl Stm for ret_stm_node{
+   fn token(&mut self) -> super::lex::Token{
+        return self.token.clone()
+    }
+   fn token_literal(&mut self) -> String{
+        String::from(&self.token.literal)
+    }
+}
+impl ret_stm_node {
+
+    
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -42,18 +76,18 @@ impl iden{
 }
 
 pub struct Program {
-    pub statements: Vec<super::ast::stm>,
+    pub statements: Vec<super::ast::stm>,   
+ 
     pub errors: Vec<String>
 }
 
 impl Program{
+pub fn token_literal_of_stm(stm: &super::ast::stm)-> String{
+    stm.clone().token_literal()
+}
 pub fn token_literal(&mut self) -> String{
         if std::vec::Vec::len(&self.statements) > 0 {
-            let stm = match self.statements[0].clone() {
-              stm::Let_Stm(s) => s, 
-              stm::Stm(s) => s
-            };
-            stm.token_literal()
+           Program::token_literal_of_stm(&self.statements[0])
        }else{
             "".to_string()
         }

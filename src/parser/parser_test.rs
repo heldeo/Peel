@@ -39,6 +39,28 @@ mod tests {
         }
     }
 
+    #[test]
+    fn test_return_stm(){
+        let input = "
+        return 5;
+        return 10;
+        return 993322";
+
+        let l: super::lex::Lexer= super::lex::lexer_of_str(input);
+        let mut p = super::parser::cons_parser(l );
+        let program = p.parse_program().unwrap();
+        check_parser_errors(&program);
+        if std::vec::Vec::len(&program.statements) != 3 {
+            panic!("Program.statements does not have 3 statements:  {:#?}", std::vec::Vec::len(&program.statements))
+        }
+
+        for i in 0 ..std::vec::Vec::len(&program.statements){
+            if super::ast::Program::token_literal_of_stm(&program.statements[i]) != "return"{
+                panic!("program.statement at {} is not 'return', got token literal {}", i, super::ast::Program::token_literal_of_stm(&program.statements[i]))
+            }
+        }
+    }
+
     fn check_parser_errors(program: &super::ast::Program){
         let errs = &program.errors; 
         if std::vec::Vec::len(&errs) == 0 {
@@ -52,19 +74,23 @@ mod tests {
     }
 
     fn test_let_stm(stm:super::ast::stm,name: String) -> bool{
-        let let_stm = match stm {
-            super::ast::stm::Let_Stm(s) => s,
-            super::ast::stm::Stm(s) => s
+        let first_tok = super::ast::Program::token_literal_of_stm(&stm);
+        let let_stm = match &stm {
+            super::ast::stm::Let_Stm(s) => Some(s),
+           _ => None 
         };
-        if let_stm.token_literal() != "let"{
+        
+        if first_tok != "let"{
             panic!("stmn.token_literal()) not 'let'. ");
         }
-        if *let_stm.name.value != name {
+        if *let_stm.unwrap().name.value != name {
             panic!("let_stm.name.value is not equal to name");
         }
-        if let_stm.name.clone().token_literal() != name{
+        if let_stm.unwrap().name.clone().token_literal() != name{
             panic!("let_stm.name.literal (actual token field) is not equal to name");
         }
         return true;
     }
+
+
 }

@@ -43,7 +43,11 @@ impl parser{
         if !self.expect_peek(super::lex::TokenType::IDENT){
             return None;
         }
-        let node = super::ast::node{
+
+        // current token here is identifier/
+        //expect_peek sideffect of moving token head
+
+        let node = super::ast::let_stm_node{
             token: self.cur_token.clone().unwrap(),
             name: super::ast::iden{
                 token: self.cur_token.clone().unwrap(),
@@ -60,9 +64,22 @@ impl parser{
         };
         Some(super::ast::stm::Let_Stm(node))
     }
+    fn parse_return_stm(&mut self) -> Option<super::ast::stm>{
+        let return_token = self.cur_token.clone().unwrap().clone();
+        self.next_token();
+        //TODO: Skipping expressions
+        while self.cur_token_is(super::lex::TokenType::SEMICOLON){
+            self.next_token();
+        }
+        Some(super::ast::stm::Ret_Stm(super::ast::ret_stm_node{
+            token: return_token,
+            ret_value: super::ast::exp::Node("todo".to_owned()) 
+        }))
+    }
     fn parse_stm(&mut self) -> super::ast::stm{
        match self.cur_token.clone().unwrap().kind {
            super::lex::TokenType::LET => self.parse_let_stm().unwrap(),
+           super::lex::TokenType::RETURN => self.parse_return_stm().unwrap(),
            _ => self.parse_let_stm().unwrap()
        } 
     }
