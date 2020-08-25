@@ -81,7 +81,7 @@ mod tests {
         };
         
         if first_tok != "let"{
-            panic!("stmn.token_literal()) not 'let'. ");
+            panic!("stmn.token_literal()) not 'let'.  Was: {}", first_tok);
         }
         if *let_stm.unwrap().name.value != name {
             panic!("let_stm.name.value is not equal to name");

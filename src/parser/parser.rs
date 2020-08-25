@@ -21,8 +21,12 @@ pub fn cons_parser(lexer: super::lex::Lexer) ->  parser{
 
 impl parser{
     fn cur_token_is(&mut self, t: super::lex::TokenType) -> bool{
-        t == self.cur_token.clone().unwrap_or(super::lex::cons_eof_tok()).kind
-    }
+        if self.cur_token == None {
+            false
+        } else{
+            t == self.cur_token.clone().unwrap().kind
+        }
+ }
     fn peek_token_is(&mut self, t: super::lex::TokenType)-> bool{
         t == self.peek_token.clone().unwrap_or(super::lex::cons_eof_tok()).kind
     }
@@ -40,6 +44,8 @@ impl parser{
        self.peek_token = Some( self.l.next_token()); 
     }
     fn parse_let_stm(&mut self) -> Option<super::ast::stm>{
+        let cur_token = self.cur_token.clone().unwrap().clone();
+
         if !self.expect_peek(super::lex::TokenType::IDENT){
             return None;
         }
@@ -48,7 +54,7 @@ impl parser{
         //expect_peek sideffect of moving token head
 
         let node = super::ast::let_stm_node{
-            token: self.cur_token.clone().unwrap(),
+            token: cur_token,
             name: super::ast::iden{
                 token: self.cur_token.clone().unwrap(),
                 value: self.cur_token.clone().unwrap().literal
@@ -76,11 +82,16 @@ impl parser{
             ret_value: super::ast::exp::Node("todo".to_owned()) 
         }))
     }
-    fn parse_stm(&mut self) -> super::ast::stm{
-       match self.cur_token.clone().unwrap().kind {
-           super::lex::TokenType::LET => self.parse_let_stm().unwrap(),
-           super::lex::TokenType::RETURN => self.parse_return_stm().unwrap(),
-           _ => self.parse_let_stm().unwrap()
+    fn parse_stm(&mut self) -> Option<super::ast::stm>{
+        
+        let tok = self.cur_token.clone().unwrap_or(super::lex::Token{
+            kind: super::lex::TokenType::ILLEGAL,
+            literal: "".to_owned()
+        });
+       match tok.kind{
+           super::lex::TokenType::LET => self.parse_let_stm(),
+           super::lex::TokenType::RETURN => self.parse_return_stm(),
+           _ =>  None 
        } 
     }
     fn peek_error(&mut self, t: super::lex::TokenType)  {
@@ -94,7 +105,10 @@ impl parser{
         };
         while  !self.cur_token_is(super::lex::TokenType::EOF){
                 let stm = self.parse_stm();
-                program.statements.push(stm.clone()); 
+                if stm != None {
+                program.statements.push(stm.unwrap()); 
+                }
+                self.next_token();
         }
         Some(program)
     }
