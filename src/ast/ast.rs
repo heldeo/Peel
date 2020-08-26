@@ -4,7 +4,9 @@
 pub enum stm{
      Let_Stm(let_stm_node),
      Ret_Stm(ret_stm_node),
+     Exp_Stm(exp_stm_node),
      Stm(let_stm_node)
+     
 }
 
 impl  stm{
@@ -12,6 +14,7 @@ impl  stm{
        match self {
            stm::Let_Stm(s) => s.token_literal(),
            stm::Ret_Stm(s) => s.token_literal(),
+           stm::Exp_Stm(s) => s.token_literal(),
            stm::Stm(s) => s.token_literal()
        }
     }
@@ -32,6 +35,11 @@ pub struct let_stm_node{
 pub struct ret_stm_node{
     pub token: super::lex::Token,
     pub ret_value: exp 
+}
+#[derive(Debug,PartialEq,Clone)]
+pub struct exp_stm_node{
+    pub token: super::lex::Token,
+    pub exp: exp
 }
 trait Stm {
     fn token(&mut self) -> super::lex::Token;
@@ -56,9 +64,14 @@ impl Stm for ret_stm_node{
         String::from(&self.token.literal)
     }
 }
-impl ret_stm_node {
+impl Stm for exp_stm_node{
+   fn token(&mut self) -> super::lex::Token{
+        return self.token.clone()
+    }
+   fn token_literal(&mut self) -> String{
+        String::from(&self.token.literal)
+    }
 
-    
 }
 
 #[derive(Debug, PartialEq, Clone)]
