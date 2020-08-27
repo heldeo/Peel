@@ -55,15 +55,18 @@ impl parser{
        self.cur_token =  self.peek_token.clone();
        self.peek_token = Some( self.l.next_token()); 
     }
-    fn register_prefix(&mut self, t:super::lex::TokenType, prefix_parse_fn: fn(super::ast::exp)) ->{
-
+    fn register_prefix(&mut self, t:super::lex::TokenType, prefix_parse_fn: fn()-> super::ast::exp){
+        self.prefix_parse_fns = Some(match &mut self.prefix_parse_fns { 
+            Some(m) => { m.insert(t, prefix_parse_fn);m.clone() },
+            None =>  {let mut m =  HashMap::new(); m.insert(t,prefix_parse_fn); m}
+        });
     }
 
-    fn register_infx(&mut self, t: super::lex::TokenType, infix_parse_fn: fn(super::ast::exp))->{
-        self.infix_parse_fns = match &self.infix_parse_fns { 
-            Some(m) => { m.clone().insert(t, infix_parse_fn); m},
-            None =>  {let mut m =  HashMap::new(); m.insert(t,infix_parse_fn); hash}
-        };
+    fn register_infx(&mut self, t: super::lex::TokenType, infix_parse_fn: fn(super::ast::exp)){
+        self.infix_parse_fns = Some(match &mut self.infix_parse_fns { 
+            Some(m) => { m.insert(t, infix_parse_fn); m.clone()},
+            None =>  {let mut m =  HashMap::new(); m.insert(t,infix_parse_fn); m}
+        });
     }
     fn parse_let_stm(&mut self) -> Option<super::ast::stm>{
         let cur_token = self.cur_token.clone().unwrap().clone();
