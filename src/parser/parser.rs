@@ -7,16 +7,21 @@ pub struct parser{
     cur_token:  Option<super::lex::Token>,
     peek_token:   Option<super::lex::Token>,
     errors: Vec<String>,
-    prefix_parse_fn:  HashMap<super::lex::TokenType, fn() -> super::ast::exp>,
-    infix_parse_fn: HashMap<super::lex::TokenType, fn(super::ast::exp)>
+    prefix_parse_fns:  Option<HashMap<super::lex::TokenType, fn() -> super::ast::exp>>,
+    infix_parse_fns: Option<HashMap<super::lex::TokenType, fn(super::ast::exp)>>
 }
-
+fn something() -> super::ast::exp{
+    super::ast::exp::Node("s".to_owned())
+}
 pub fn cons_parser(lexer: super::lex::Lexer) ->  parser{
+
     let mut parser = parser {
             l: lexer,
             cur_token:  None,
             peek_token:  None, 
-            errors: vec![]
+            errors: vec![],
+            prefix_parse_fns: None,
+            infix_parse_fns: None 
         };
         parser.next_token();
         parser
@@ -29,9 +34,13 @@ impl parser{
         } else{
             t == self.cur_token.clone().unwrap().kind
         }
- }
+    }
     fn peek_token_is(&mut self, t: super::lex::TokenType)-> bool{
         t == self.peek_token.clone().unwrap_or(super::lex::cons_eof_tok()).kind
+    }
+    pub fn peek_error(&mut self, t: super::lex::TokenType)  {
+       let  msg = format!("Expected next token to be {:#?}, got {:#?} instead",t, self.peek_token.to_owned().unwrap().kind); 
+       self.errors.push(msg.to_owned());
     }
     fn expect_peek(&mut self, t: super::lex::TokenType)-> bool{
         if self.peek_token_is(t.to_owned()){
@@ -45,6 +54,16 @@ impl parser{
     fn next_token(&mut self){
        self.cur_token =  self.peek_token.clone();
        self.peek_token = Some( self.l.next_token()); 
+    }
+    fn register_prefix(&mut self, t:super::lex::TokenType, prefix_parse_fn: fn(super::ast::exp)) ->{
+
+    }
+
+    fn register_infx(&mut self, t: super::lex::TokenType, infix_parse_fn: fn(super::ast::exp))->{
+        self.infix_parse_fns = match &self.infix_parse_fns { 
+            Some(m) => { m.clone().insert(t, infix_parse_fn); m},
+            None =>  {let mut m =  HashMap::new(); m.insert(t,infix_parse_fn); hash}
+        };
     }
     fn parse_let_stm(&mut self) -> Option<super::ast::stm>{
         let cur_token = self.cur_token.clone().unwrap().clone();
@@ -96,10 +115,6 @@ impl parser{
            super::lex::TokenType::RETURN => self.parse_return_stm(),
            _ =>  None 
        } 
-    }
-    fn peek_error(&mut self, t: super::lex::TokenType)  {
-       let  msg = format!("Expected next token to be {:#?}, got {:#?} instead",t, self.peek_token.to_owned().unwrap().kind); 
-       self.errors.push(msg.to_owned());
     }
     pub fn parse_program(&mut self) -> Option<super::ast::Program>{
         let mut program = super::ast::Program  {
