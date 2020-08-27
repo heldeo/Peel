@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 #[path ="../ast/ast.rs"] mod ast;
 #[path = "../lexer/lex.rs"] mod lex;
 
@@ -5,7 +6,9 @@ pub struct parser{
     l:  super::lex::Lexer,
     cur_token:  Option<super::lex::Token>,
     peek_token:   Option<super::lex::Token>,
-    errors: Vec<String>
+    errors: Vec<String>,
+    prefix_parse_fn:  HashMap<super::lex::TokenType, fn() -> super::ast::exp>,
+    infix_parse_fn: HashMap<super::lex::TokenType, fn(super::ast::exp)>
 }
 
 pub fn cons_parser(lexer: super::lex::Lexer) ->  parser{
