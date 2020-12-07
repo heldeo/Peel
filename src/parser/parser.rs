@@ -68,6 +68,7 @@ impl parser{
             None =>  {let mut m =  HashMap::new(); m.insert(t,infix_parse_fn); m}
         });
     }
+    
     fn parse_let_stm(&mut self) -> Option<super::ast::stm>{
         let cur_token = self.cur_token.clone().unwrap().clone();
 
@@ -107,6 +108,15 @@ impl parser{
             ret_value: super::ast::exp::Node("todo".to_owned()) 
         }))
     }
+    fn parse_exp_stm(&mut self) -> Option<super::ast::stm>{
+        let exp_stm = super::ast::stm::Exp_Stm(super::ast::exp_stm_node{ 
+            token: self.cur_token.unwrap(), 
+            exp: self.parse_exp(Some(1))});
+        Some(exp_stm)
+    }
+    fn parse_exp(&mut self, exp:Option<i32>) -> super::ast::exp{
+        super::ast::exp::Node(String::from(""))
+    }
     fn parse_stm(&mut self) -> Option<super::ast::stm>{
         
         let tok = self.cur_token.clone().unwrap_or(super::lex::Token{
@@ -116,7 +126,7 @@ impl parser{
        match tok.kind{
            super::lex::TokenType::LET => self.parse_let_stm(),
            super::lex::TokenType::RETURN => self.parse_return_stm(),
-           _ =>  None 
+           _ =>   self.parse_exp_stm()
        } 
     }
     pub fn parse_program(&mut self) -> Option<super::ast::Program>{

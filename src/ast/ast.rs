@@ -39,7 +39,7 @@ pub struct ret_stm_node{
 #[derive(Debug,PartialEq,Clone)]
 pub struct exp_stm_node{
     pub token: super::lex::Token,
-    pub exp: exp
+    pub exp: exp,
 }
 trait Stm {
     fn token(&mut self) -> super::lex::Token;

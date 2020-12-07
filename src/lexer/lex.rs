@@ -31,7 +31,7 @@ pub enum TokenType {
     NOTEQ
 }
 
-#[derive(Debug, PartialEq,Clone)]
+#[derive(Debug, PartialEq,Clone,Copy)]
 pub struct Token {
     pub kind: TokenType,
     pub literal: String,
