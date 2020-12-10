@@ -4,6 +4,15 @@ mod ast;
 #[path = "../lexer/lex.rs"]
 mod lex;
 
+pub enum PRECEDENCE{
+    LOWEST = 1,
+    EQUALS,
+    LESSGREATER, // > or < 
+    SUM,
+    PRODUCT,
+    PREFIX,
+    CALL
+}
 pub struct parser {
     l: super::lex::Lexer,
     cur_token: Option<super::lex::Token>,
@@ -145,15 +154,18 @@ impl parser {
 
         let exp_stm = super::ast::stm::Exp_Stm(super::ast::exp_stm_node {
             token: tok,
-            exp: self.parse_exp(Some(1)),
+            exp: self.parse_exp(PRECEDENCE::LOWEST).unwrap(),
         });
-        if (self.peek_token_is(super::lex::TokenType::SEMICOLON)) {
+        if self.peek_token_is(super::lex::TokenType::SEMICOLON) {
             self.next_token()
         }
         Some(exp_stm)
     }
-    fn parse_exp(&mut self, exp: Option<i32>) -> super::ast::exp {
-        super::ast::exp::Node(String::from(""))
+    fn parse_exp(&mut self, p: PRECEDENCE) -> Option<super::ast::exp> {
+        super::ast::exp::Node(String::from(""));
+        let pref = self.prefix_parse_fns.as_ref().unwrap().get(&self.cur_token.as_ref().unwrap().kind);
+
+        if pref == None {None} else {Some(pref.unwrap()())}
     }
     fn parse_stm(&mut self) -> Option<super::ast::stm> {
         let tok = self.cur_token.clone().unwrap_or(super::lex::Token {
