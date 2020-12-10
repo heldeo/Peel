@@ -45,7 +45,7 @@ mod tests {
         let input = "
         return 5;
         return 10;
-        return 993322";
+        return 993322;";
 
         let l: super::lex::Lexer = super::lex::lexer_of_str(input);
         let mut p = super::parser::cons_parser(l);
